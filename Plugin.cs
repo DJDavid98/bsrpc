@@ -1,6 +1,10 @@
-﻿using IPA;
-using Newtonsoft.Json;
+﻿using DataPuller.Data;
+using Discord;
+using DiscordCore;
+using IPA;
 using System;
+using System.Text;
+using System.Threading;
 using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
@@ -12,12 +16,9 @@ namespace bsrpc
         internal static Plugin Instance { get; private set; }
         internal static IPALogger Log { get; private set; }
 
-        private PluginSocketData mapDataSource;
-        private PluginSocketData liveDataSource;
-        private MapData mapData;
-        private LiveData liveData;
-        private Discord.Discord discord;
+        private DiscordInstance discord;
         private static long DiscordClientId = 1028340906740420711;
+        private Timer updateTimer;
 
         [Init]
         /// <summary>
@@ -32,109 +33,46 @@ namespace bsrpc
             Log.Info("bsrpc initialized.");
         }
 
-        #region BSIPA Config
-        //Uncomment to use BSIPA's config
-        /*
-        [Init]
-        public void InitWithConfig(Config conf)
-        {
-            Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
-            Log.Debug("Config loaded");
-        }
-        */
-        #endregion
-
         [OnStart]
         public void OnApplicationStart()
         {
-            Log.Debug("OnApplicationStart");
             new GameObject("bsrpcController").AddComponent<bsrpcController>();
 
-            mapDataSource = new PluginSocketData("MapData", Log);
-            mapDataSource.Update += UpdateMapData;
+            MapData.Instance.OnUpdate += UpdateRichPresence;
+            LiveData.Instance.OnUpdate += UpdateRichPresence;
 
-            liveDataSource = new PluginSocketData("LiveData", Log);
-            liveDataSource.Update += UpdateLiveData;
+            discord = DiscordManager.instance.CreateInstance(new DiscordSettings
+            {
+                appId = DiscordClientId,
+                handleInvites = false,
+                modId = nameof(bsrpc),
+                modName = nameof(bsrpc),
+            });
 
-            discord = new Discord.Discord(DiscordClientId, (UInt64)Discord.CreateFlags.Default);
+            SetUpdateTimer(0);
         }
 
-        private void UpdateMapData(string jsonData)
+        // Update rich presence regularly on a scedule even if the update events are not fired
+        private void SetUpdateTimer(int debounceMs = 500)
         {
-            try
+            if (updateTimer != null)
             {
-                mapData = Deserialize<MapData>("map data", jsonData);
+                updateTimer.Dispose();
+
             }
-            catch (Exception e)
-            {
-                Log.Error($"Error while updating map data: {e.Message}");
-            }
+            updateTimer = new Timer((e) => UpdateRichPresence(), null, debounceMs, 5000);
+        }
+
+        private void UpdateRichPresence(string jsonData)
+        {
             UpdateRichPresence();
         }
-        private void UpdateLiveData(string jsonData)
-        {
-            try
-            {
-                liveData = Deserialize<LiveData>("live data", jsonData);
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Error while updating live data: {e.Message}");
-            }
-            UpdateRichPresence();
-        }
-
-        private T Deserialize<T>(string type, string jsonData)
-        {
-            Log.Debug($"Updating {type}: {jsonData}");
-            var settings = new JsonSerializerSettings();
-            settings.MissingMemberHandling = MissingMemberHandling.Ignore;
-            settings.NullValueHandling = NullValueHandling.Include;
-            settings.Error += (sender, e) =>
-            {
-                Log.Error($"Deserialize: {e}");
-            };
-            return JsonConvert.DeserializeObject<T>(jsonData, settings);
-        }
-
         private void UpdateRichPresence()
         {
-            Log.Debug("Updating rich presence");
-            var activityManager = discord.GetActivityManager();
-            if (activityManager == null)
-            {
-                Log.Error("Could not get Discord ActivityManager");
-                return;
-            }
-            try
-            {
+            var activity = GetActivityData();
 
-                var activity = GetActivityData();
-                Log.Debug($"Gathered activity data: {JsonConvert.SerializeObject(activity)}");
-
-                try
-                {
-                    activityManager.UpdateActivity(activity, (result) =>
-                    {
-                        if (result == Discord.Result.Ok)
-                        {
-                            Log.Debug("Sucessfully updated Discord Activity");
-                        }
-                        else
-                        {
-                            Log.Error("Failed to update Discord Activity");
-                        }
-                    });
-                }
-                catch (Exception e)
-                {
-                    Log.Error($"Error while updating rich presence: {e.Message}\n{e.Source}");
-                }
-            }
-            catch (NullReferenceException e)
-            {
-                Log.Error($"Null reference error while updating rich presence: {e.Message}\n{e.Source}");
-            }
+            discord.UpdateActivity(activity);
+            SetUpdateTimer();
         }
 
         private string GetReadableDifficulty(string originalDifficulty)
@@ -148,80 +86,248 @@ namespace bsrpc
             }
         }
 
+        private string GetReadableRank(string originalRank)
+        {
+            switch (originalRank)
+            {
+                case "SSS":
+                    // Match in-game rank shown during zen mode
+                    return "E";
+                default:
+                    return originalRank;
+            }
+        }
+
         private string GetPlayState()
         {
-            if (mapData.LevelPaused)
+            if (MapData.Instance.LevelPaused)
             {
-                return "Paused";
+                return "⏸️";
             }
 
-            if (mapData.LevelFailed)
+            if (MapData.Instance.LevelFailed)
             {
-                return "Failed";
+                return "☠️";
             }
 
-            if (mapData.LevelFinished)
+            if (MapData.Instance.LevelFinished)
             {
 
-                return "Finished";
+                return "🎉";
             }
 
-            if (liveData != null)
+            if (LiveData.Instance.TimeElapsed > 0)
             {
-                return "Playing";
+                return "▶️";
             }
 
-            return "Waiting";
+            return "⌛";
+        }
+
+        private string GetModifiersState()
+        {
+            StringBuilder modifiersString = new StringBuilder();
+            if (LiveData.Instance.TimeElapsed > 0)
+            {
+                if (MapData.Instance.Modifiers.ZenMode)
+                {
+                    modifiersString.Append("🧘");
+                }
+                else
+                {
+                    // Life modifiers
+                    if (MapData.Instance.Modifiers.NoFailOn0Energy || MapData.Instance.Modifiers.OneLife || MapData.Instance.Modifiers.FourLives)
+                    {
+                        if (MapData.Instance.Modifiers.NoFailOn0Energy)
+                        {
+                            modifiersString.Append("🛡");
+                        }
+                        else if (MapData.Instance.Modifiers.OneLife)
+                        {
+                            modifiersString.Append("1🤍");
+                        }
+                        else if (MapData.Instance.Modifiers.FourLives)
+                        {
+                            modifiersString.Append("4🤍");
+                        }
+                        modifiersString.Append(" ");
+                    }
+
+                    // Difficulty decreasing modifiers
+                    if (MapData.Instance.Modifiers.NoBombs || MapData.Instance.Modifiers.NoWalls || MapData.Instance.Modifiers.NoArrows)
+                    {
+                        modifiersString.Append("🚫");
+                        if (MapData.Instance.Modifiers.NoBombs)
+                        {
+                            modifiersString.Append("💣");
+                        }
+                        if (MapData.Instance.Modifiers.NoWalls)
+                        {
+                            modifiersString.Append("🧱");
+                        }
+                        if (MapData.Instance.Modifiers.NoArrows)
+                        {
+                            modifiersString.Append("🔽");
+                        }
+                        modifiersString.Append(" ");
+                    }
+
+                    // Difficulty increasing modifiers
+                    if (MapData.Instance.Modifiers.GhostNotes || MapData.Instance.Modifiers.DisappearingArrows)
+                    {
+                        if (MapData.Instance.Modifiers.GhostNotes)
+                        {
+                            modifiersString.Append("👻");
+                        }
+                        else if (MapData.Instance.Modifiers.DisappearingArrows)
+                        {
+                            modifiersString.Append("🟦");
+                        }
+                        modifiersString.Append(" ");
+                    }
+
+                    if (MapData.Instance.Modifiers.SmallNotes || MapData.Instance.Modifiers.ProMode || MapData.Instance.Modifiers.StrictAngles)
+                    {
+                        if (MapData.Instance.Modifiers.SmallNotes)
+                        {
+                            modifiersString.Append("🔹");
+                        }
+                        if (MapData.Instance.Modifiers.ProMode)
+                        {
+                            modifiersString.Append("⚔️");
+                        }
+                        if (MapData.Instance.Modifiers.StrictAngles)
+                        {
+                            modifiersString.Append("📐");
+                        }
+                        modifiersString.Append(" ");
+                    }
+                }
+
+                // Speed modifiers
+                if (MapData.Instance.Modifiers.SlowerSong)
+                {
+                    modifiersString.Append("🐌");
+                }
+                else if (MapData.Instance.Modifiers.FasterSong)
+                {
+                    modifiersString.Append("⏩");
+                }
+                if (MapData.Instance.Modifiers.SuperFastSong)
+                {
+                    modifiersString.Append("⏩");
+                }
+            }
+
+            return modifiersString.ToString().Trim();
+        }
+
+        private ActivityAssets GetActivityAssets()
+        {
+            var assets = new ActivityAssets();
+            if (MapData.Instance.InLevel)
+            {
+                assets.LargeImage = RichPresenceAssetKeys.TheFirst;
+
+                switch (MapData.Instance.MapType)
+                {
+                    case "Standard":
+                        assets.SmallImage = RichPresenceAssetKeys.Standard;
+                        assets.SmallText = "Standard";
+                        break;
+                    case "OneSaber":
+                        assets.SmallImage = RichPresenceAssetKeys.OneSaber;
+                        assets.SmallText = "One Saber";
+                        break;
+                    case "NoArrows":
+                        assets.SmallImage = RichPresenceAssetKeys.NoArrows;
+                        assets.SmallText = "No Arrows";
+                        break;
+                    case "360Degree":
+                        assets.SmallImage = RichPresenceAssetKeys.ThreeSixty;
+                        assets.SmallText = "360°";
+                        break;
+                    case "90Degree":
+                        assets.SmallImage = RichPresenceAssetKeys.Ninety;
+                        assets.SmallText = "90°";
+                        break;
+                    default:
+                        assets.SmallImage = RichPresenceAssetKeys.BlankMapType;
+                        assets.SmallText = MapData.Instance.MapType;
+                        break;
+                }
+            }
+            else
+            {
+                if (MapData.Instance.IsMultiplayer)
+                {
+                    assets.LargeImage = RichPresenceAssetKeys.MultiplayerLobby;
+                }
+                else
+                {
+                    assets.LargeImage = RichPresenceAssetKeys.MainMenu;
+                }
+            }
+            if (assets.LargeImage != null)
+            {
+                assets.LargeText = $"Game version: {MapData.GameVersion}";
+            }
+
+            return assets;
         }
 
         private Discord.Activity GetActivityData()
         {
-            Log.Debug("Building activity data");
-            Log.Debug($"mapData = {JsonConvert.SerializeObject(mapData)}");
-            Log.Debug($"liveData = {JsonConvert.SerializeObject(liveData)}");
             var activity = new Discord.Activity();
-            if (mapData != null)
+            activity.Assets = GetActivityAssets();
+            if (MapData.Instance.InLevel)
             {
-                activity.Name = $"Beat Saber {mapData.GameVersion}";
-                if (mapData.InLevel)
+                var playState = GetPlayState() + GetModifiersState();
+                var lobbyType = MapData.Instance.IsMultiplayer ? "Multiplayer" : "Singleplayer";
+                var rankedStatus = MapData.Instance.Star > 0 ? $" ⭐{MapData.Instance.Star:N}" : "";
+                var playDetail = "";
+
+                var difficulty = GetReadableDifficulty(MapData.Instance.Difficulty);
+                var songSubName = MapData.Instance.SongSubName.Length > 0 ? $" {MapData.Instance.SongSubName}" : "";
+                var mapper = MapData.Instance.Mapper.Length > 0 ? $" [{MapData.Instance.Mapper}]" : "";
+                activity.Details = $"{MapData.Instance.SongName}{songSubName} by {MapData.Instance.SongAuthor}{mapper} ({difficulty}{rankedStatus})";
+
+                if (LiveData.Instance.TimeElapsed > 0)
                 {
-                    var playState = GetPlayState();
-                    var lobbyType = mapData.IsMultiplayer ? "Multiplayer" : "Solo";
-                    var rankedStatus = mapData.Star > 0 ? "Ranked" : "Unranked";
-                    activity.State = $"{playState} - {lobbyType} ({rankedStatus})";
-
-                    var difficulty = GetReadableDifficulty(mapData.Difficulty);
-                    activity.Details = $"{mapData.SongName} by {mapData.SongAuthor} ({difficulty})";
-
-                    if (liveData != null && !mapData.LevelPaused)
+                    var rank = GetReadableRank(LiveData.Instance.Rank);
+                    playDetail = $" {LiveData.Instance.Score:N} x{LiveData.Instance.Combo} {LiveData.Instance.Accuracy}% ({rank})";
+                    if (!MapData.Instance.LevelPaused)
                     {
-                        activity.Timestamps.Start = DateTime.UtcNow.Ticks - liveData.TimeElapsed;
-                        activity.Timestamps.End = activity.Timestamps.Start + mapData.Length;
+                        activity.Timestamps.End = DateTimeToUnixTimestamp(DateTime.Now.AddSeconds(-Convert.ToDouble(LiveData.Instance.TimeElapsed)).AddSeconds(MapData.Instance.Duration));
                     }
+                }
+
+                activity.State = $"{playState} {lobbyType}{playDetail}";
+            }
+            else
+            {
+                if (MapData.Instance.IsMultiplayer)
+                {
+                    activity.State = "Multiplayer Lobby";
                 }
                 else
                 {
-                    if (mapData.IsMultiplayer)
-                    {
-                        activity.State = "Multiplayer Lobby";
-                    }
-                    else
-                    {
-                        activity.State = "Main Menu";
-                    }
+                    activity.State = "Main Menu";
                 }
             }
             return activity;
+        }
+
+        private long DateTimeToUnixTimestamp(DateTime ticks)
+        {
+            return ((DateTimeOffset)ticks).ToUnixTimeMilliseconds();
         }
 
 
         [OnExit]
         public void OnApplicationQuit()
         {
-            Log.Debug("OnApplicationQuit");
-            discord.Dispose();
-            mapDataSource.Cleanup();
-            liveDataSource.Cleanup();
+
         }
     }
 }
