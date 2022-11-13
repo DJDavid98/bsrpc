@@ -33,6 +33,7 @@
         public static readonly string Timbaland = "timbaland";
         public static readonly string Triangle = "triangle";
         public static readonly string Weave = "weave";
+        public static readonly string TheWeekend = "the_weekend";
 
         // Map types
         public static readonly string BlankMapType = "blank_map_type";

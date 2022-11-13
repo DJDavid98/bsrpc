@@ -295,10 +295,14 @@ namespace bsrpc
                 if (LiveData.Instance.TimeElapsed > 0)
                 {
                     var rank = GetReadableRank(LiveData.Instance.Rank);
-                    playDetail = $" {LiveData.Instance.Score:N} x{LiveData.Instance.Combo} {LiveData.Instance.Accuracy}% ({rank})";
+                    var score = LiveData.Instance.Score;
+                    var combo = LiveData.Instance.Combo > 0 ? $" x{LiveData.Instance.Combo:N0}" : "";
+                    var accuracy = LiveData.Instance.Accuracy;
+                    playDetail = $" {score:N0}{combo} {accuracy:F2}% ({rank})";
                     if (!MapData.Instance.LevelPaused)
                     {
-                        activity.Timestamps.End = DateTimeToUnixTimestamp(DateTime.Now.AddSeconds(-Convert.ToDouble(LiveData.Instance.TimeElapsed)).AddSeconds(MapData.Instance.Duration));
+                        var elapsedTime = Convert.ToDouble(LiveData.Instance.TimeElapsed);
+                        activity.Timestamps.End = DateTimeToUnixTimestamp(DateTime.Now.AddSeconds(-elapsedTime).AddSeconds(MapData.Instance.Duration));
                     }
                 }
 
