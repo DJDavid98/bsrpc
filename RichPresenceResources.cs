@@ -5,10 +5,10 @@
         // Environments
         public static readonly string BigMirror = "big_mirror";
         public static readonly string Billie = "billie";
-        public static readonly string BTS = "bts";
+        public static readonly string Bts = "bts";
         public static readonly string CrabRave = "crab_rave";
         public static readonly string Dragons = "dragons";
-        public static readonly string EDM = "edm";
+        public static readonly string Edm = "edm";
         public static readonly string FallOutBoy = "fall_out_boy";
         public static readonly string FitBeat = "fitbeat";
         public static readonly string Gaga = "gaga";
@@ -16,7 +16,7 @@
         public static readonly string GreenDayGrenade = "green_day_grenade";
         public static readonly string Interscope = "interscope";
         public static readonly string Kaleidoscope = "kaleidoscope";
-        public static readonly string KDA = "kda";
+        public static readonly string Kda = "kda";
         public static readonly string LinkinPark = "linkin_park";
         public static readonly string Lizzo = "lizzo";
         public static readonly string MainMenu = "main_menu";

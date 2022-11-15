@@ -13,12 +13,11 @@ namespace bsrpc
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        internal static Plugin Instance { get; private set; }
         internal static IPALogger Log { get; private set; }
 
-        private DiscordInstance discord;
-        private static long DiscordClientId = 1028340906740420711;
-        private Timer updateTimer;
+        private DiscordInstance _discord;
+        private const long DiscordClientId = 1028340906740420711;
+        private Timer _updateTimer;
 
         [Init]
         /// <summary>
@@ -28,7 +27,6 @@ namespace bsrpc
         /// </summary>
         public void Init(IPALogger logger)
         {
-            Instance = this;
             Log = logger;
             Log.Info("bsrpc initialized.");
         }
@@ -36,12 +34,12 @@ namespace bsrpc
         [OnStart]
         public void OnApplicationStart()
         {
-            new GameObject("bsrpcController").AddComponent<bsrpcController>();
+            new GameObject("bsrpcController").AddComponent<BsrpcController>();
 
             MapData.Instance.OnUpdate += UpdateRichPresence;
             LiveData.Instance.OnUpdate += UpdateRichPresence;
 
-            discord = DiscordManager.instance.CreateInstance(new DiscordSettings
+            _discord = DiscordManager.instance.CreateInstance(new DiscordSettings
             {
                 appId = DiscordClientId,
                 handleInvites = false,
@@ -52,15 +50,11 @@ namespace bsrpc
             SetUpdateTimer(0);
         }
 
-        // Update rich presence regularly on a scedule even if the update events are not fired
+        // Update rich presence regularly on a schedule even if the update events are not fired
         private void SetUpdateTimer(int debounceMs = 500)
         {
-            if (updateTimer != null)
-            {
-                updateTimer.Dispose();
-
-            }
-            updateTimer = new Timer((e) => UpdateRichPresence(), null, debounceMs, 5000);
+            _updateTimer?.Dispose();
+            _updateTimer = new Timer((e) => UpdateRichPresence(), null, debounceMs, 5000);
         }
 
         private void UpdateRichPresence(string jsonData)
@@ -71,7 +65,7 @@ namespace bsrpc
         {
             var activity = GetActivityData();
 
-            discord.UpdateActivity(activity);
+            _discord.UpdateActivity(activity);
             SetUpdateTimer();
         }
 
