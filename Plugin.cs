@@ -1,4 +1,6 @@
-﻿using DataPuller.Data;
+﻿using System;
+using System.Threading;
+using DataPuller.Data;
 using Discord;
 using DiscordCore;
 using IPA;
@@ -58,7 +60,8 @@ namespace bsrpc
 
         private bool IsMultiplayer()
         {
-            return MapData.Instance.IsMultiplayer;
+            return MapData.Instance.IsMultiplayer && MapData.Instance.MultiplayerLobbyMaxSize > 0 &&
+                   MapData.Instance.MultiplayerLobbyCurrentSize > 0;
         }
 
         private ActivityAssets GetActivityAssets()
@@ -66,7 +69,7 @@ namespace bsrpc
             var assets = new ActivityAssets();
             if (MapData.Instance.InLevel)
             {
-                assets.LargeImage = RichPresenceAssetKeys.TheFirst;
+                assets.LargeImage = DataMappers.GetEnvironmentImage();
 
                 switch (MapData.Instance.MapType)
                 {
@@ -107,6 +110,7 @@ namespace bsrpc
                     assets.LargeImage = RichPresenceAssetKeys.MainMenu;
                 }
             }
+
             if (assets.LargeImage != null)
             {
                 assets.LargeText = $"Game version: {MapData.GameVersion}";
@@ -129,13 +133,14 @@ namespace bsrpc
                 var difficulty = DataMappers.GetReadableDifficulty(MapData.Instance.Difficulty);
                 var songSubName = MapData.Instance.SongSubName.Length > 0 ? $" {MapData.Instance.SongSubName}" : "";
                 var mapper = MapData.Instance.Mapper.Length > 0 ? $" [{MapData.Instance.Mapper}]" : "";
-                activity.Details = $"{MapData.Instance.SongName}{songSubName} by {MapData.Instance.SongAuthor}{mapper} ({difficulty}{rankedStatus})";
+                activity.Details =
+                    $"{MapData.Instance.SongName}{songSubName} by {MapData.Instance.SongAuthor}{mapper} ({difficulty}{rankedStatus})";
 
                 if (LiveData.Instance.TimeElapsed > 0)
                 {
                     var rank = DataMappers.GetReadableRank(LiveData.Instance.Rank);
                     var score = LiveData.Instance.Score > 0 ? $" {LiveData.Instance.Score}" : "";
-                    var combo = LiveData.Instance.Combo > 0 ? $" x{LiveData.Instance.Combo:N0}" : "";
+                    var combo = LiveData.Instance.Combo > 0 ? $" {LiveData.Instance.Combo:N0}x" : "";
                     var accuracy = LiveData.Instance.Accuracy;
                     playDetail = $"{score}{combo} {accuracy:F2}% ({rank})";
                     if (!MapData.Instance.LevelPaused)
@@ -153,6 +158,9 @@ namespace bsrpc
                 if (IsMultiplayer())
                 {
                     activity.State = "Multiplayer Lobby";
+                    activity.Party.Size = new PartySize();
+                    activity.Party.Size.MaxSize = MapData.Instance.MultiplayerLobbyMaxSize;
+                    activity.Party.Size.CurrentSize = MapData.Instance.MultiplayerLobbyCurrentSize;
                 }
                 else
                 {

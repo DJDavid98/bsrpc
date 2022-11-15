@@ -1,5 +1,6 @@
-﻿using DataPuller.Data;
-using System.Text;
+﻿using System.Text;
+using DataPuller.Data;
+using IPALogger = IPA.Logging.Logger;
 
 namespace bsrpc
 {
