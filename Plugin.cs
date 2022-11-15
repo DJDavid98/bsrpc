@@ -1,10 +1,9 @@
-﻿using DataPuller.Data;
+﻿using System;
+using System.Threading;
+using DataPuller.Data;
 using Discord;
 using DiscordCore;
 using IPA;
-using System;
-using System.Text;
-using System.Threading;
 using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
@@ -13,11 +12,10 @@ namespace bsrpc
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        internal static IPALogger Log { get; private set; }
-
-        private DiscordInstance _discord;
         private const long DiscordClientId = 1028340906740420711;
+        private DiscordInstance _discord;
         private Timer _updateTimer;
+        internal static IPALogger Log { get; private set; }
 
         [Init]
         /// <summary>
@@ -44,7 +42,7 @@ namespace bsrpc
                 appId = DiscordClientId,
                 handleInvites = false,
                 modId = nameof(bsrpc),
-                modName = nameof(bsrpc),
+                modName = nameof(bsrpc)
             });
 
             SetUpdateTimer(0);
@@ -54,13 +52,14 @@ namespace bsrpc
         private void SetUpdateTimer(int debounceMs = 500)
         {
             _updateTimer?.Dispose();
-            _updateTimer = new Timer((e) => UpdateRichPresence(), null, debounceMs, 5000);
+            _updateTimer = new Timer(e => UpdateRichPresence(), null, debounceMs, 5000);
         }
 
         private void UpdateRichPresence(string jsonData)
         {
             UpdateRichPresence();
         }
+
         private void UpdateRichPresence()
         {
             var activity = GetActivityData();
@@ -69,151 +68,10 @@ namespace bsrpc
             SetUpdateTimer();
         }
 
-        private string GetReadableDifficulty(string originalDifficulty)
+        private bool IsMultiplayer()
         {
-            switch (originalDifficulty)
-            {
-                case "ExpertPlus":
-                    return "Expert+";
-                default:
-                    return originalDifficulty;
-            }
-        }
-
-        private string GetReadableRank(string originalRank)
-        {
-            switch (originalRank)
-            {
-                case "SSS":
-                    // Match in-game rank shown during zen mode
-                    return "E";
-                default:
-                    return originalRank;
-            }
-        }
-
-        private string GetPlayState()
-        {
-            if (MapData.Instance.LevelPaused)
-            {
-                return "⏸️";
-            }
-
-            if (MapData.Instance.LevelFailed)
-            {
-                return "☠️";
-            }
-
-            if (MapData.Instance.LevelFinished)
-            {
-
-                return "🎉";
-            }
-
-            if (LiveData.Instance.TimeElapsed > 0)
-            {
-                return "▶️";
-            }
-
-            return "⌛";
-        }
-
-        private string GetModifiersState()
-        {
-            StringBuilder modifiersString = new StringBuilder();
-            if (LiveData.Instance.TimeElapsed > 0)
-            {
-                if (MapData.Instance.Modifiers.ZenMode)
-                {
-                    modifiersString.Append("🧘");
-                }
-                else
-                {
-                    // Life modifiers
-                    if (MapData.Instance.Modifiers.NoFailOn0Energy || MapData.Instance.Modifiers.OneLife || MapData.Instance.Modifiers.FourLives)
-                    {
-                        if (MapData.Instance.Modifiers.NoFailOn0Energy)
-                        {
-                            modifiersString.Append("🛡");
-                        }
-                        else if (MapData.Instance.Modifiers.OneLife)
-                        {
-                            modifiersString.Append("1🤍");
-                        }
-                        else if (MapData.Instance.Modifiers.FourLives)
-                        {
-                            modifiersString.Append("4🤍");
-                        }
-                        modifiersString.Append(" ");
-                    }
-
-                    // Difficulty decreasing modifiers
-                    if (MapData.Instance.Modifiers.NoBombs || MapData.Instance.Modifiers.NoWalls || MapData.Instance.Modifiers.NoArrows)
-                    {
-                        modifiersString.Append("🚫");
-                        if (MapData.Instance.Modifiers.NoBombs)
-                        {
-                            modifiersString.Append("💣");
-                        }
-                        if (MapData.Instance.Modifiers.NoWalls)
-                        {
-                            modifiersString.Append("🧱");
-                        }
-                        if (MapData.Instance.Modifiers.NoArrows)
-                        {
-                            modifiersString.Append("🔽");
-                        }
-                        modifiersString.Append(" ");
-                    }
-
-                    // Difficulty increasing modifiers
-                    if (MapData.Instance.Modifiers.GhostNotes || MapData.Instance.Modifiers.DisappearingArrows)
-                    {
-                        if (MapData.Instance.Modifiers.GhostNotes)
-                        {
-                            modifiersString.Append("👻");
-                        }
-                        else if (MapData.Instance.Modifiers.DisappearingArrows)
-                        {
-                            modifiersString.Append("🟦");
-                        }
-                        modifiersString.Append(" ");
-                    }
-
-                    if (MapData.Instance.Modifiers.SmallNotes || MapData.Instance.Modifiers.ProMode || MapData.Instance.Modifiers.StrictAngles)
-                    {
-                        if (MapData.Instance.Modifiers.SmallNotes)
-                        {
-                            modifiersString.Append("🔹");
-                        }
-                        if (MapData.Instance.Modifiers.ProMode)
-                        {
-                            modifiersString.Append("⚔️");
-                        }
-                        if (MapData.Instance.Modifiers.StrictAngles)
-                        {
-                            modifiersString.Append("📐");
-                        }
-                        modifiersString.Append(" ");
-                    }
-                }
-
-                // Speed modifiers
-                if (MapData.Instance.Modifiers.SlowerSong)
-                {
-                    modifiersString.Append("🐌");
-                }
-                else if (MapData.Instance.Modifiers.FasterSong)
-                {
-                    modifiersString.Append("⏩");
-                }
-                if (MapData.Instance.Modifiers.SuperFastSong)
-                {
-                    modifiersString.Append("⏩");
-                }
-            }
-
-            return modifiersString.ToString().Trim();
+            return MapData.Instance.IsMultiplayer && MapData.Instance.MultiplayerLobbyMaxSize > 0 &&
+                   MapData.Instance.MultiplayerLobbyCurrentSize > 0;
         }
 
         private ActivityAssets GetActivityAssets()
@@ -221,7 +79,7 @@ namespace bsrpc
             var assets = new ActivityAssets();
             if (MapData.Instance.InLevel)
             {
-                assets.LargeImage = RichPresenceAssetKeys.TheFirst;
+                assets.LargeImage = DataMappers.GetEnvironmentImage();
 
                 switch (MapData.Instance.MapType)
                 {
@@ -253,7 +111,7 @@ namespace bsrpc
             }
             else
             {
-                if (MapData.Instance.IsMultiplayer)
+                if (IsMultiplayer())
                 {
                     assets.LargeImage = RichPresenceAssetKeys.MultiplayerLobby;
                 }
@@ -262,6 +120,7 @@ namespace bsrpc
                     assets.LargeImage = RichPresenceAssetKeys.MainMenu;
                 }
             }
+
             if (assets.LargeImage != null)
             {
                 assets.LargeText = $"Game version: {MapData.GameVersion}";
@@ -270,33 +129,35 @@ namespace bsrpc
             return assets;
         }
 
-        private Discord.Activity GetActivityData()
+        private Activity GetActivityData()
         {
-            var activity = new Discord.Activity();
+            var activity = new Activity();
             activity.Assets = GetActivityAssets();
             if (MapData.Instance.InLevel)
             {
-                var playState = GetPlayState() + GetModifiersState();
-                var lobbyType = MapData.Instance.IsMultiplayer ? "Multiplayer" : "Singleplayer";
+                var playState = DataMappers.GetPlayState() + DataMappers.GetModifiersState();
+                var lobbyType = IsMultiplayer() ? "Multiplayer" : "Singleplayer";
                 var rankedStatus = MapData.Instance.Star > 0 ? $" ⭐{MapData.Instance.Star:N}" : "";
                 var playDetail = "";
 
-                var difficulty = GetReadableDifficulty(MapData.Instance.Difficulty);
+                var difficulty = DataMappers.GetReadableDifficulty(MapData.Instance.Difficulty);
                 var songSubName = MapData.Instance.SongSubName.Length > 0 ? $" {MapData.Instance.SongSubName}" : "";
                 var mapper = MapData.Instance.Mapper.Length > 0 ? $" [{MapData.Instance.Mapper}]" : "";
-                activity.Details = $"{MapData.Instance.SongName}{songSubName} by {MapData.Instance.SongAuthor}{mapper} ({difficulty}{rankedStatus})";
+                activity.Details =
+                    $"{MapData.Instance.SongName}{songSubName} by {MapData.Instance.SongAuthor}{mapper} ({difficulty}{rankedStatus})";
 
                 if (LiveData.Instance.TimeElapsed > 0)
                 {
-                    var rank = GetReadableRank(LiveData.Instance.Rank);
-                    var score = LiveData.Instance.Score;
-                    var combo = LiveData.Instance.Combo > 0 ? $" x{LiveData.Instance.Combo:N0}" : "";
+                    var rank = DataMappers.GetReadableRank(LiveData.Instance.Rank);
+                    var score = LiveData.Instance.Score > 0 ? $" {LiveData.Instance.Score}" : "";
+                    var combo = LiveData.Instance.Combo > 0 ? $" {LiveData.Instance.Combo:N0}x" : "";
                     var accuracy = LiveData.Instance.Accuracy;
-                    playDetail = $" {score:N0}{combo} {accuracy:F2}% ({rank})";
+                    playDetail = $"{score}{combo} {accuracy:F2}% ({rank})";
                     if (!MapData.Instance.LevelPaused)
                     {
                         var elapsedTime = Convert.ToDouble(LiveData.Instance.TimeElapsed);
-                        activity.Timestamps.End = DateTimeToUnixTimestamp(DateTime.Now.AddSeconds(-elapsedTime).AddSeconds(MapData.Instance.Duration));
+                        activity.Timestamps.End = DateTimeToUnixTimestamp(DateTime.Now.AddSeconds(-elapsedTime)
+                            .AddSeconds(MapData.Instance.Duration));
                     }
                 }
 
@@ -304,15 +165,19 @@ namespace bsrpc
             }
             else
             {
-                if (MapData.Instance.IsMultiplayer)
+                if (IsMultiplayer())
                 {
                     activity.State = "Multiplayer Lobby";
+                    activity.Party.Size = new PartySize();
+                    activity.Party.Size.MaxSize = MapData.Instance.MultiplayerLobbyMaxSize;
+                    activity.Party.Size.CurrentSize = MapData.Instance.MultiplayerLobbyCurrentSize;
                 }
                 else
                 {
                     activity.State = "Main Menu";
                 }
             }
+
             return activity;
         }
 
@@ -325,7 +190,6 @@ namespace bsrpc
         [OnExit]
         public void OnApplicationQuit()
         {
-
         }
     }
 }
