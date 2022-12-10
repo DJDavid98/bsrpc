@@ -221,7 +221,7 @@ namespace bsrpc
             var assets = new ActivityAssets();
             if (MapData.Instance.InLevel)
             {
-                assets.LargeImage = RichPresenceAssetKeys.TheFirst;
+                assets.LargeImage = MapData.Instance.CoverImage ?? RichPresenceAssetKeys.TheFirst;
 
                 switch (MapData.Instance.MapType)
                 {
