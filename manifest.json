@@ -3,9 +3,9 @@
   "id": "bsrpc",
   "name": "bsrpc",
   "author": "DJDavid98",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Discord Rich Presence integration for Beat Saber",
-  "gameVersion": "1.26.0",
+  "gameVersion": "1.27.0",
   "dependsOn": {
     "BSIPA": "^4.2.2",
     "DataPuller": "^2.1.0",
