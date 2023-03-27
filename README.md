@@ -9,6 +9,6 @@ Discord Rich Presence support for Beat Saber. No customization options whatsoeve
 
 ## Dependencies
 
-* BSIPA v4 (ModAssistant)
+* BSIPA v4.2.2 (ModAssistant)
 * DiscordCore v1.0.10 (https://github.com/FizzyApple12/DiscordCore/releases/tag/v1.0.10)
-* DataPuller v2.1.0 (https://github.com/ReadieFur/BSDataPuller/releases/tag/2.1.0)
+* DataPuller v2.1.1 (https://github.com/ReadieFur/BSDataPuller/releases/tag/2.1.1)
