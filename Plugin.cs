@@ -4,7 +4,6 @@ using DiscordCore;
 using IPA;
 using System;
 using System.Text;
-using System.Threading;
 using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
@@ -17,7 +16,6 @@ namespace bsrpc
 
         private DiscordInstance _discord;
         private const long DiscordClientId = 1028340906740420711;
-        private Timer _updateTimer;
 
         [Init]
         /// <summary>
@@ -46,15 +44,6 @@ namespace bsrpc
                 modId = nameof(bsrpc),
                 modName = nameof(bsrpc),
             });
-
-            SetUpdateTimer(0);
-        }
-
-        // Update rich presence regularly on a schedule even if the update events are not fired
-        private void SetUpdateTimer(int debounceMs = 500)
-        {
-            _updateTimer?.Dispose();
-            _updateTimer = new Timer((e) => UpdateRichPresence(), null, debounceMs, 5000);
         }
 
         private void UpdateRichPresence(string jsonData)
@@ -66,7 +55,6 @@ namespace bsrpc
             var activity = GetActivityData();
 
             _discord.UpdateActivity(activity);
-            SetUpdateTimer();
         }
 
         private string GetReadableDifficulty(string originalDifficulty)
@@ -325,7 +313,9 @@ namespace bsrpc
         [OnExit]
         public void OnApplicationQuit()
         {
-
+            MapData.Instance.OnUpdate -= UpdateRichPresence;
+            LiveData.Instance.OnUpdate -= UpdateRichPresence;
+            _discord.DestroyInstance();
         }
     }
 }
