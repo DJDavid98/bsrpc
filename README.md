@@ -2,9 +2,10 @@
 
 Discord Rich Presence support for Beat Saber.
 
-Displays information about the current song (including ranked status), modifiers (as emojis), play/pause state, multi/singleplayer, current score, combo and accuracy be default. Time left is also displayed while playing (speed modifiers are also accounted for).
+Displays information about the current song (including ranked status), modifiers (as emojis), play/pause state, multi/singleplayer, current score, combo and accuracy by default. Time left is also displayed while playing (speed modifiers are also accounted for).
 
-Please wait around 30-60s after launching the game for the Rich Presence to appear, it can take some time after starting the game.
+> [!IMPORTANT]  
+> Please wait around 30-60s after launching the game for the Rich Presence to appear, it can take some time after starting the game.
 
 <div align="center">
     <img src="screenshots/card.png" height="300" alt="Discord account card showing the Beat Saber rich presence">
@@ -23,16 +24,16 @@ Can be used to provide a custom [Discord App ID] in case you want to define your
 
 The default is an App ID created by the mod's author that works with the default configuration of the mod.
 
-If you wantto create your own App, you will need to upload image assets with specific names to match the ones defined in the mod. See the [RichPresenceResources.cs(./RichPresenceResources.cs) file for exact names.
+If you want to create your own App, you will need to upload image assets with specific names to match the ones defined in the mod. See the [RichPresenceResources.cs](./RichPresenceResources.cs) file for exact names.
 
 
 ### `MultiplayerDetection`
 
-When `true` the mod will detect when you are is in the built-in Multiplayer menu. It will also change the "lobby type" displayed in later steps.
+When `true` the mod will detect when you are in the built-in Multiplayer menu. It will also change the "lobby type" displayed in later steps.
 
 ### `MultiplayerPartyInfo`
 
-When `true` and `MultiplayerDetection` is also enabled, the mod will display the size of the lobby as well as the number of people in it.
+When `true` and `MultiplayerDetection` is also enabled, the mod will display the size of the lobby as well as the number of people in it inside the rich presence.
 
 ### `LargeImageSongCover`
 
@@ -53,7 +54,7 @@ This can be used to change the text displayed when using the `mapType` variable.
 
 ### Data Line Formatting
 
-There are 3 options which accept "format lists":
+There are several options which accept "format lists":
 
 * `DetailsFormat` - the 2nd line of the rich presence (below the app name) while playing a song
 * `StateFormat` - the 3rd line of the rich presence while playing a song
@@ -62,7 +63,7 @@ There are 3 options which accept "format lists":
 
 Each string in the list will only be appended to the final output in case it has a "valid" value (valid is subjective and it is defined by the mod). Each value in the list takes the form of `"prefix{{variable}}suffix"` where `prefix` and `suffix` can be an arbitrary number of characters before and after the variable, respectively, and `variable` is the name of the variable from the table below.
 
-The strings also have configurable separators that go between each valid item. By default this is a space for `DetailsFormat` and `StateFormat`, and a slash surrounded by spaces (` / `) for `LargeTextFormat` and `SmallTextFormat`.
+The strings also have configurable separators that go between each valid item. By default this is a space for `DetailsFormat` and `StateFormat`, and a slash surrounded by spaces (` / `) for `LargeTextFormat` and `SmallTextFormat`. You can also disable displaying the individual lines by setting them to `null` instead of the list.
 
 | Variable       | Description                   | Example       | Additional formatting | Validity criteria |
 | -------------- | ----------------------------- | ------------- | --------------------- | ----------------- |
@@ -92,8 +93,6 @@ The strings also have configurable separators that go between each valid item. B
 | gameVersion    | Version of the game           | 1.29.1        |                       | Not empty         |
 | pluginVersion  | Version of the mod            | 1.1.2         |                       | Not empty         |
 
-You can disable displaying the individual lines by setting them to null instead of the list.
-
 ### `FullComboValue`
 
 This can be used to change the text displayed when using the `fullCombo` variable. Set the value to the text you want to see displayed, or an empty string to prevent that value from being displayed.
@@ -115,4 +114,4 @@ The `PlayStateEmoji`, `ModifierEmoji` and `LobbyTypeEmoji` options allow you to 
 
 * BSIPA v4.2.2 (ModAssistant)
 * DiscordCore v3.0.1 (https://github.com/DJDavid98/DiscordCore/releases/tag/v3.0.1)
-* DataPuller v2.1.4 (https://github.com/ReadieFur/BSDataPuller/releases/tag/2.1.4)
+* DataPuller v2.1.4 (https://github.com/DJDavid98/BSDataPuller/releases/tag/2.1.4)

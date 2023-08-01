@@ -347,8 +347,7 @@ namespace bsrpc
             switch (MapData.Instance.MapType)
             {
                 case "Standard": return RichPresenceAssetKeys.Standard;
-                case "OneSaber":
-                    return RichPresenceAssetKeys.OneSaber;
+                case "OneSaber": return RichPresenceAssetKeys.OneSaber;
                 case "NoArrows": return RichPresenceAssetKeys.NoArrows;
                 case "360Degree": return RichPresenceAssetKeys.ThreeSixty;
                 case "90Degree": return RichPresenceAssetKeys.Ninety;
