@@ -1,6 +1,6 @@
 ﻿# bsrpc
 
-Discord Rich Presence support for Beat Saber.
+Discord Rich Presence support for Beat Saber, now with 100% more configurability!
 
 Displays information about the current song (including ranked status), modifiers (as emojis), play/pause state, multi/singleplayer, current score, combo and accuracy by default. Time left is also displayed while playing (speed modifiers are also accounted for).
 
