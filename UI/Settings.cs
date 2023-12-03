@@ -1,9 +1,12 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
+using UnityEngine;
 
 namespace bsrpc.UI
 {
-    internal class Settings : PersistentSingleton<Settings>
+    internal class Settings : MonoBehaviour
     {
+        public static Settings instance = new Settings();
+
         [UIValue("multiplayer-detection")]
         public bool multiplayerDetection { get { return PluginConfig.Instance.MultiplayerDetection; } set { PluginConfig.Instance.MultiplayerDetection = value; } }
 
