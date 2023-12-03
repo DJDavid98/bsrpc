@@ -113,7 +113,7 @@ The `PlayStateEmoji`, `ModifierEmoji` and `LobbyTypeEmoji` options allow you to 
 
 ## Dependencies
 
-* BSIPA v4.2.2 (ModAssistant)
-* BeatSaberMarkupLanguage 1.6.10 (ModAssistant)
-* DiscordCore v3.0.1 (https://github.com/DJDavid98/DiscordCore/releases/tag/v3.0.1)
-* DataPuller v2.1.4 (https://github.com/DJDavid98/BSDataPuller/releases/tag/2.1.4)
+* BSIPA v4.3.0 (ModAssistant)
+* BeatSaberMarkupLanguage v1.7.3 (ModAssistant)
+* DiscordCore v3.0.3 (https://github.com/DJDavid98/DiscordCore/releases/tag/v3.0.1)
+* DataPuller v2.1.5 (https://github.com/DJDavid98/BSDataPuller/releases/tag/2.1.4)
