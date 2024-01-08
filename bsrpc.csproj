@@ -15,7 +15,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
-    <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
+    <GameDirectory>$(LocalRefsDir)</GameDirectory>
     <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
     <!--<PathMap>$(AppOutputBase)=X:\$(AssemblyName)\</PathMap>-->
     <ErrorReport>prompt</ErrorReport>
@@ -60,17 +60,17 @@
   <ItemGroup>
     <Reference Include="BSML, Version=1.6.10.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
-      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+      <HintPath>$(GameDirectory)\Plugins\BSML.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="DataPuller">
-      <HintPath>$(BeatSaberDir)\Plugins\DataPuller.dll</HintPath>
+      <HintPath>$(GameDirectory)\Plugins\DataPuller.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="DiscordCore, Version=1.0.10.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
-      <HintPath>$(BeatSaberDir)\Plugins\DiscordCore.dll</HintPath>
+      <HintPath>$(GameDirectory)\Plugins\DiscordCore.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System" />
@@ -80,47 +80,47 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Main">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\Main.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="HMLib">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="HMUI">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="IPA.Loader">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UIElementsModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.VRModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
+      <HintPath>$(GameDirectory)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
