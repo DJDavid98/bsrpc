@@ -52,7 +52,7 @@ namespace bsrpc
         public virtual MapTypeValues MapType { get; set; } = new MapTypeValues();
 
         [UseConverter(typeof(ListConverter<string>))]
-        public virtual List<string> DetailsFormat { get; set; } = new List<string>() { "{{songName}}", "{{songSubName}}", "by {{songAuthor}}", "[{{mapper}}]", "{{difficulty}}", "⭐{{stars}}" };
+        public virtual List<string> DetailsFormat { get; set; } = new List<string>() { "{{songName}}", "{{songSubName}}", "by {{songAuthor}}", "[{{mapper}}]", "{{difficulty}}", "{{ranked}}", "{{qualified}}", "{{stars}}" };
 
         [NonNullable]
         public virtual string DetailsSeparator { get; set; } = " ";
@@ -78,6 +78,10 @@ namespace bsrpc
 
         [NonNullable]
         public virtual string FullComboValue { get; set; } = "✅FC";
+        [NonNullable]
+        public virtual string RankedValue { get; set; } = "⭐";
+        [NonNullable]
+        public virtual string QualifiedValue { get; set; } = "✨";
         [NonNullable]
         public virtual string MainMenuValue { get; set; } = "Main Menu";
         [NonNullable]

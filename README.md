@@ -66,33 +66,39 @@ Each string in the list will only be appended to the final output in case it has
 
 The strings also have configurable separators that go between each valid item. By default this is a space for `DetailsFormat` and `StateFormat`, and a slash surrounded by spaces (` / `) for `LargeTextFormat` and `SmallTextFormat`. You can also disable displaying the individual lines by setting them to `null` instead of the list.
 
-| Variable       | Description                   | Example       | Additional formatting | Validity criteria |
-| -------------- | ----------------------------- | ------------- | --------------------- | ----------------- |
-| songName       | Title of the song             | Country Roads |                       | Not empty         |
-| songSubName    | Sub-name of the song          | Squeepo Remix |                       | Not empty         |
-| songAuthor     | Author of the song            | Jaroslav Beck, Kings & Folk |         | Not empty         |
-| mapper         | Mapper name (custom songs )   | Mawntee       |                       | Not empty         |
-| difficulty     | Human-readable difficulty     | Expert        | "ExpertPlus" replaced by "Expert+" | Not empty |
+| Variable         | Description                   | Example       | Additional formatting | Validity criteria |
+|------------------| ----------------------------- | ------------- | --------------------- | ----------------- |
+| songName         | Title of the song             | Country Roads |                       | Not empty         |
+| songSubName      | Sub-name of the song          | Squeepo Remix |                       | Not empty         |
+| songAuthor       | Author of the song            | Jaroslav Beck, Kings & Folk |         | Not empty         |
+| mapper           | Mapper + lighter names (comma separated) | Mawntee, tychailatte |     | Not empty         |
+| mappers          | Mapper names (comma separated) | altrevin, Freek |                    | Not empty         |
+| lighters         | Lighter names (comma separated) | altrevin, Freek |                   | Not empty         |
+| contentRating    | Map content rating            | Safe |                                | Not empty         |
+| difficulty       | Human-readable difficulty     | Expert        | "ExpertPlus" replaced by "Expert+" | Not empty |
 | customDifficulty | Custom difficulty name      | Lawless       |                       | Not empty         |
-| stars          | ScoreSaber ranked stars       | 4,22          | Up to two decimals    | Greater than 0    |
-| pp             | ScoreSaber perofrmance points | 167,89        | Up to two decimals    | Greater than 0    |
-| playState      | Emoji indicating play state   | ▶️             | Based on configuration | Not empty        |
-| modifiersState | Emojis indicating modifiers   | 🧘            | Based on configuration | Not empty        |
-| lobbyType      | Single/multiplayer or practice | 👤           | Based on configuration | Not empty        |
-| mapType        | Type of the current map       | One Saber     | Based on configuration | Not empty        |
-| score          | Total score                   | 123,456       |                       | Greater than 0    |
-| topScore       | Top score for mode and difficulty | 156,789   |                       | Greater than 0    |
-| combo          | Consecutive hits without misses | 234         | No decimals           | Greater than 0    |
-| misses         | Totall misses & bad cuts      | 12            | No decimals           | Greater than 0    |
-| energy         | Player health                 | 90            | 0-100, no % sign      |                   |
-| bpm            | Song beats per minute         | 180           | No decimals           | Greater than 0    |
-| njs            | Song note jump speed          | 14,21         | Up to two decimals    | Greater than 0    |
-| accuracy       | Current accuracy              | 86,24         | Two decimals, excluding % sign |          |
-| rank           | Accuracy ranking letter       | SS            |                       | Not empty         |
-| bsr            | BSR key of custom maps        | 97f6          |                       | Not empty         |
-| fc             | Full combo text               | ✅FC          |                       | No misses & not empty |
-| gameVersion    | Version of the game           | 1.29.1        |                       | Not empty         |
-| pluginVersion  | Version of the mod            | 1.1.2         |                       | Not empty         |
+| ranked           | Ranked text                   | ⭐             | Based on configuration | If map is ranked |
+| qualified        | Qualified text                | ✨             | Based on configuration | If map is ranked |
+| stars            | ScoreSaber ranked stars       | 4,22          | Up to two decimals    | Greater than 0    |
+| blstars          | BeatLeader ranked stars       | 6,98         | Up to two decimals    | Greater than 0    |
+| pp               | ScoreSaber perofrmance points | 167,89        | Up to two decimals    | Greater than 0    |
+| playState        | Emoji indicating play state   | ▶️             | Based on configuration | Not empty        |
+| modifiersState   | Emojis indicating modifiers   | 🧘            | Based on configuration | Not empty        |
+| lobbyType        | Single/multiplayer or practice | 👤           | Based on configuration | Not empty        |
+| mapType          | Type of the current map       | One Saber     | Based on configuration | Not empty        |
+| score            | Total score                   | 123,456       |                       | Greater than 0    |
+| topScore         | Top score for mode and difficulty | 156,789   |                       | Greater than 0    |
+| combo            | Consecutive hits without misses | 234         | No decimals           | Greater than 0    |
+| misses           | Totall misses & bad cuts      | 12            | No decimals           | Greater than 0    |
+| energy           | Player health                 | 90            | 0-100, no % sign      |                   |
+| bpm              | Song beats per minute         | 180           | No decimals           | Greater than 0    |
+| njs              | Song note jump speed          | 14,21         | Up to two decimals    | Greater than 0    |
+| accuracy         | Current accuracy              | 86,24         | Two decimals, excluding % sign |          |
+| rank             | Accuracy ranking letter       | SS            |                       | Not empty         |
+| bsr              | BSR key of custom maps        | 97f6          |                       | Not empty         |
+| fc               | Full combo text               | ✅FC          | Based on configuration | No misses & not empty |
+| gameVersion      | Version of the game           | 1.29.1        |                       | Not empty         |
+| pluginVersion    | Version of the mod            | 1.1.2         |                       | Not empty         |
 
 ### `FullComboValue`
 
@@ -113,7 +119,7 @@ The `PlayStateEmoji`, `ModifierEmoji` and `LobbyTypeEmoji` options allow you to 
 
 ## Dependencies
 
-* BSIPA v4.3.0 (ModAssistant)
-* BeatSaberMarkupLanguage v1.7.3 (ModAssistant)
-* DiscordCore v3.0.3 (https://github.com/DJDavid98/DiscordCore/releases/tag/v3.0.1)
-* DataPuller v2.1.5 (https://github.com/DJDavid98/BSDataPuller/releases/tag/2.1.4)
+* BSIPA v4.3.3 (ModAssistant)
+* BeatSaberMarkupLanguage v1.9.0 (ModAssistant)
+* DiscordCore v3.0.5 (https://github.com/DJDavid98/DiscordCore/releases/tag/v3.0.5)
+* DataPuller v2.1.14 (https://github.com/DJDavid98/BSDataPuller/releases/tag/2.1.14)

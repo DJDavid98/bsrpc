@@ -44,9 +44,12 @@ namespace bsrpc
                 case "songSubName": return MapData.Instance.SongSubName;
                 case "songAuthor": return MapData.Instance.SongAuthor;
                 case "mapper": return MapData.Instance.Mapper;
+                case "mappers": return MapData.Instance.Mappers.Count > 0 ? string.Join(", ", MapData.Instance.Mappers) : "";
+                case "lighters": return MapData.Instance.Lighters.Count > 0 ? string.Join(", ", MapData.Instance.Lighters) : "";
                 case "difficulty": return GetReadableDifficulty(MapData.Instance.Difficulty);
                 case "customDifficulty": return MapData.Instance.CustomDifficultyLabel;
-                case "stars": return MapData.Instance.Star > 0 ? $"{MapData.Instance.Star:N2}" : "";
+                case "stars": return MapData.Instance.RankedState.ScoresaberStars > 0 ? $"{MapData.Instance.RankedState.ScoresaberStars:N2}" : "";
+                case "blstars": return MapData.Instance.RankedState.BeatleaderStars > 0 ? $"{MapData.Instance.RankedState.BeatleaderStars:N2}" : "";
                 case "pp": return MapData.Instance.PP > 0 ? $"{MapData.Instance.PP:N2}" : "";
                 case "playState": return GetPlayState();
                 case "modifiersState": return GetModifiersState();
@@ -63,6 +66,8 @@ namespace bsrpc
                 case "rank": return GetReadableRank(LiveData.Instance.Rank);
                 case "bsr": return MapData.Instance.BSRKey;
                 case "fc": return LiveData.Instance.FullCombo ? PluginConfig.Instance.FullComboValue : "";
+                case "ranked": return MapData.Instance.RankedState.Ranked ? PluginConfig.Instance.RankedValue : "";
+                case "qualified": return MapData.Instance.RankedState.Qualified ? PluginConfig.Instance.QualifiedValue : "";
                 case "gameVersion": return Regex.Replace(MapData.GameVersion, @"_\d+$", "");
                 case "pluginVersion": return MapData.PluginVersion;
                 default: return $"{{{key}}}";
@@ -358,7 +363,8 @@ namespace bsrpc
         {
             if (PluginConfig.Instance.LargeImageSongCover)
             {
-                if (MapData.Instance.CoverImage != null && MapData.Instance.CoverImage.Length > 0)
+                var coverImageUrl = MapData.Instance.CoverImage;
+                if (coverImageUrl != null && coverImageUrl.Length > 0 && coverImageUrl.StartsWith("https"))
                 {
                     return MapData.Instance.CoverImage;
                 }
