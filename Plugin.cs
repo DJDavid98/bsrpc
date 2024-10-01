@@ -47,15 +47,13 @@ namespace bsrpc
         [OnEnable]
         public void OnEnable()
         {
-
-            BSMLSettings.instance.RemoveSettingsMenu(Settings.instance);
-            BSMLSettings.instance.AddSettingsMenu("bsrpc", "bsrpc.UI.SettingsViewController.bsml", Settings.instance);
+            SettingsMenuManager.Initialize();
         }
 
         [OnDisable]
         public void OnDisable()
         {
-            BSMLSettings.instance.RemoveSettingsMenu(Settings.instance);
+            SettingsMenuManager.Disable();
         }
 
         private void HandleConfigUpdate()
