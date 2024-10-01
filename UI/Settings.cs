@@ -21,5 +21,11 @@ namespace bsrpc.UI
 
         [UIValue("small-image-map-type")]
         public bool smallImageMapType { get { return PluginConfig.Instance.ShowMapType; } set { PluginConfig.Instance.ShowMapType = value; } }
+
+        [UIValue("use-end-time")]
+        public bool useEndTime { get { return PluginConfig.Instance.UseEndTime; } set { PluginConfig.Instance.UseEndTime = value; } }
+
+        [UIValue("per-activity-start-time")]
+        public bool perActivityStartTime { get { return !PluginConfig.Instance.TrackLastSceneSwitch; } set { PluginConfig.Instance.TrackLastSceneSwitch = !value; } }
     }
 }
