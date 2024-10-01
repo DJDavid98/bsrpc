@@ -22,6 +22,7 @@ namespace bsrpc.UI
         public static void Disable()
         {
             MainMenuAwaiter.MainMenuInitializing -= InitOnMainMenuLoaded;
+            DidInit = false;
             BSMLSettings.Instance.RemoveSettingsMenu(Settings.instance);
         }
 
