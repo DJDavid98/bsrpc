@@ -1,10 +1,12 @@
-﻿using BeatSaberMarkupLanguage.Settings;
-using bsrpc.UI;
+﻿using bsrpc.UI;
 using DataPuller.Data;
+using Discord;
 using DiscordCore;
 using IPA;
 using IPA.Config.Stores;
 using System;
+using System.Reflection;
+using System.Timers;
 using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
@@ -14,8 +16,15 @@ namespace bsrpc
     public class Plugin
     {
         private DiscordInstance _discord;
-        private DateTime _lastSceneSwitchTime;
+        private DateTime _lastSceneSwitchTime = DateTime.Now;
         private DataMappers.Scenes _lastScene = DataMappers.Scenes.Unknown;
+        public static DateTime? LastPauseDateTime { get; private set; } = null;
+        private Timer _pauseTimer = new Timer(5000);
+        public static Activity? LastActivity {
+            get;
+            private set;
+        }
+        public static readonly string PluginVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
         internal static IPALogger Log { get; private set; }
 
         [Init]
@@ -42,20 +51,22 @@ namespace bsrpc
             CreateDiscordManager();
             PluginConfig.Instance.OnReloaded += HandleConfigUpdate;
             PluginConfig.Instance.OnChanged += HandleConfigUpdate;
+            UpdateRichPresence();
+            // Continously send presence updates while game is paused
+            _pauseTimer.Elapsed += PauseTimerElapsed;
+            _pauseTimer.AutoReset = true;
         }
 
         [OnEnable]
         public void OnEnable()
         {
-
-            BSMLSettings.instance.RemoveSettingsMenu(Settings.instance);
-            BSMLSettings.instance.AddSettingsMenu("bsrpc", "bsrpc.UI.SettingsViewController.bsml", Settings.instance);
+            SettingsMenuManager.Initialize();
         }
 
         [OnDisable]
         public void OnDisable()
         {
-            BSMLSettings.instance.RemoveSettingsMenu(Settings.instance);
+            SettingsMenuManager.Disable();
         }
 
         private void HandleConfigUpdate()
@@ -81,25 +92,53 @@ namespace bsrpc
             });
         }
 
+        private void PauseTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            UpdateRichPresence();
+        }
+
         private void UpdateRichPresence(string jsonData)
         {
             UpdateRichPresence();
         }
 
+        private void UpdateLastPauseDateTime()
+        {
+            if (MapData.Instance.LevelPaused)
+            {
+                if (LastPauseDateTime == null)
+                {
+                    LastPauseDateTime = DateTime.Now;
+                    _pauseTimer.Start();
+                }
+            }
+            else
+            {
+                if (LastPauseDateTime != null)
+                {
+                    LastPauseDateTime = null;
+                    _pauseTimer.Stop();
+                }
+            }
+        }
+
         private void UpdateRichPresence()
         {
+            UpdateLastPauseDateTime();
             var activity = DataMappers.GetActivityData();
             var currentScene = DataMappers.GetCurrentScene();
-            if (_lastScene != currentScene)
+            if (PluginConfig.Instance.TrackLastSceneSwitch && _lastScene != currentScene)
             {
                 _lastScene = currentScene;
                 _lastSceneSwitchTime = DateTime.Now;
             }
-            if (PluginConfig.Instance.ShowElapsedTimes && currentScene != DataMappers.Scenes.Playing)
-            {
-                activity.Timestamps.Start = DataMappers.DateTimeToUnixTimestamp(_lastSceneSwitchTime);
+            if (
+                !PluginConfig.Instance.TrackLastSceneSwitch
+                || (PluginConfig.Instance.ShowElapsedTimes && currentScene != DataMappers.Scenes.Playing)
+            ) {
+                activity.Timestamps.Start = DataMappers.DateTimeToUnixTimestampMs(_lastSceneSwitchTime);
             }
-
+            LastActivity = activity;
             _discord.UpdateActivity(activity);
         }
 

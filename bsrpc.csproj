@@ -132,6 +132,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RichPresenceResources.cs" />
     <Compile Include="UI\Settings.cs" />
+    <Compile Include="UI\SettingsMenuManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />

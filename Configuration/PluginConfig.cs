@@ -33,6 +33,12 @@ namespace bsrpc
 
         [NonNullable]
         public virtual bool ShowMapType { get; set; } = true;
+
+        [NonNullable]
+        public virtual bool UseEndTime { get; set; } = false;
+        [NonNullable]
+        public virtual bool TrackLastSceneSwitch { get; set; } = false;
+
         public class MapTypeValues
         {
             [NonNullable]
@@ -58,7 +64,7 @@ namespace bsrpc
         public virtual string DetailsSeparator { get; set; } = " ";
 
         [UseConverter(typeof(ListConverter<string>))]
-        public virtual List<string> StateFormat { get; set; } = new List<string>() { "{{playState}}", "{{modifiersState}}", "{{lobbyType}}", "{{score}}", "🔗{{combo}}", "{{fc}}", "❌{{misses}}", "{{accuracy}}%", "({{rank}})" };
+        public virtual List<string> StateFormat { get; set; } = new List<string>() { "{{playState}}", "{{remainingTimePlaying}} left", "for {{pausedSince}}", "{{modifiersState}}", "{{lobbyType}}", "{{score}}", "🔗{{combo}}", "{{fc}}", "❌{{misses}}", "{{accuracy}}%", "({{rank}})" };
 
         [NonNullable]
         public virtual string StateSeparator { get; set; } = " ";

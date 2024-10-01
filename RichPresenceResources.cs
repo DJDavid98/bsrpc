@@ -34,6 +34,7 @@
         public static readonly string Triangle = "triangle";
         public static readonly string Weave = "weave";
         public static readonly string TheWeekend = "the_weekend";
+        public static readonly string Lattice = "lattice";
 
         // Map types
         public static readonly string BlankMapType = "blank_map_type";

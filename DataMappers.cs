@@ -9,6 +9,8 @@ namespace bsrpc
 {
     internal class DataMappers
     {
+        internal const int SECONDS_IN_HOUR = 60 * 60;
+
         internal static string FormatLine(List<string> inputList, string joinChar)
         {
             List<string> outputList = new List<string>();
@@ -69,9 +71,43 @@ namespace bsrpc
                 case "ranked": return MapData.Instance.RankedState.Ranked ? PluginConfig.Instance.RankedValue : "";
                 case "qualified": return MapData.Instance.RankedState.Qualified ? PluginConfig.Instance.QualifiedValue : "";
                 case "gameVersion": return Regex.Replace(MapData.GameVersion, @"_\d+$", "");
-                case "pluginVersion": return MapData.PluginVersion;
+                case "pluginVersion": return Plugin.PluginVersion;
+                case "remainingTime": return GetTimeLeft();
+                case "elapsedTime": return FormatSeconds(LiveData.Instance.TimeElapsed);
+                case "totalTime": return FormatSeconds(MapData.Instance.Duration);
+                case "remainingTimePlaying": return !MapData.Instance.LevelPaused ? GetTimeLeft() : "";
+                case "pausedSince": return MapData.Instance.LevelPaused ? GetPausedSince() : "";
                 default: return $"{{{key}}}";
             }
+        }
+
+        internal static string FormatSeconds(int seconds) {
+            var ts = TimeSpan.FromSeconds(seconds);
+            if (seconds > SECONDS_IN_HOUR)
+            {
+                return ts.ToString(@"h\:mm\:ss");
+            }
+            return ts.ToString(@"m\:ss");
+        }
+        internal static string FormatMilliseconds(long milliseconds) {
+            return FormatSeconds(Convert.ToInt32(milliseconds / 1000));
+        }
+
+        internal static string GetTimeLeft() {
+            return FormatSeconds(MapData.Instance.Duration - LiveData.Instance.TimeElapsed);
+        }
+
+        internal static string GetPausedSince()
+        {
+            if (MapData.Instance.LevelPaused)
+            {
+                if (Plugin.LastPauseDateTime.Value != null)
+                {
+                    var secondsSincePause = Math.Max(0, DateTimeToUnixTimestampSeconds(DateTime.Now) - DateTimeToUnixTimestampSeconds(Plugin.LastPauseDateTime.Value));
+                    return FormatSeconds(Convert.ToInt32(secondsSincePause));
+                }
+            }
+            return "";
         }
 
         internal static bool IsMultiplayer()
@@ -95,9 +131,13 @@ namespace bsrpc
             return PluginConfig.Instance.LobbyTypeEmoji.Singleplayer;
         }
 
-        internal static long DateTimeToUnixTimestamp(DateTime ticks)
+        internal static long DateTimeToUnixTimestampMs(DateTime ticks)
         {
             return ((DateTimeOffset)ticks).ToUnixTimeMilliseconds();
+        }
+        internal static long DateTimeToUnixTimestampSeconds(DateTime ticks)
+        {
+            return ((DateTimeOffset)ticks).ToUnixTimeSeconds();
         }
 
         internal static string GetPlayState()
@@ -281,9 +321,15 @@ namespace bsrpc
 
                 if (LiveData.Instance.TimeElapsed > 0 && !MapData.Instance.LevelPaused)
                 {
-                    var elapsedTime = Convert.ToDouble(LiveData.Instance.TimeElapsed) / GetDurationScaleFactor();
-                    activity.Timestamps.End = DateTimeToUnixTimestamp(DateTime.Now.AddSeconds(-elapsedTime)
-                        .AddSeconds(MapData.Instance.Duration / GetDurationScaleFactor()));
+                    var elapsedTimeOffset = GetRealtimeElapsedTime();
+                    if (PluginConfig.Instance.UseEndTime)
+                    {
+                        var totalTimeOffset = GetRealtimeTotalTime();
+                        activity.Timestamps.End = DateTimeToUnixTimestampMs(DateTime.Now.AddSeconds(totalTimeOffset - elapsedTimeOffset));
+                    } else
+                    {
+                        activity.Timestamps.Start = DateTimeToUnixTimestampMs(DateTime.Now.AddSeconds(-elapsedTimeOffset));
+                    }
                 }
 
             }
@@ -306,6 +352,16 @@ namespace bsrpc
             }
 
             return activity;
+        }
+
+        internal static double GetRealtimeElapsedTime()
+        {
+            return LiveData.Instance.TimeElapsed / GetDurationScaleFactor();
+        }
+
+        internal static double GetRealtimeTotalTime()
+        {
+            return MapData.Instance.Duration / GetDurationScaleFactor();
         }
 
         internal enum Scenes
@@ -466,6 +522,8 @@ namespace bsrpc
                     return RichPresenceAssetKeys.Triangle;
                 case "OriginsEnvironment":
                     return RichPresenceAssetKeys.Origins;
+                case "LatticeEnvironment":
+                    return RichPresenceAssetKeys.Lattice;
                 case "DefaultEnvironment":
                 default:
                     return RichPresenceAssetKeys.TheFirst;

@@ -1,9 +1,11 @@
-﻿<settings-container>
+﻿<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
 
   <checkbox text='Enable Multiplayer Detection' value='multiplayer-detection' apply-on-change='true' />
   <checkbox text='Show Multiplayer Lobby Information' value='multiplayer-party-info' apply-on-change='true' />
   <checkbox text='Use Cover Art as Large Image' value='large-image-cover' apply-on-change='true' />
   <checkbox text='Show Time Spent in Menus' value='show-elapsed-times' apply-on-change='true' />
   <checkbox text='Show Map Type as Small Image' value='small-image-map-type' apply-on-change='true' />
+  <checkbox text='Use Activity End Time' value='use-end-time' apply-on-change='true' />
+  <checkbox text='Per-Activity Start Time' value='per-activity-start-time' apply-on-change='true' />
 
 </settings-container>
