@@ -10,7 +10,7 @@ Displays information about the current song (including ranked status), modifiers
 <div align="center">
     <img src="screenshots/card.png" height="300" alt="Discord account card showing the Beat Saber rich presence">
     <img src="screenshots/profile.png" height="300" alt="Discord profile activity tab showing the Beat Saber rich presence">
-    <p><sup>Credits: Profile picture by <a href="https://trello.com/b/mkodBTJD/bels-commission-queue">BelvorDraws</a>, banner by <a href="https://trello.com/b/lL6rPAhd/zell-commissions">Zell</a></sup></p>
+    <p><sup>Credits: Profile picture by <a href="https://x.com/brizunzies">brizunzies</a>, banner by <a href="https://trello.com/b/lL6rPAhd/zell-commissions">Zell</a></sup></p>
 </div>
  
 ## Configuration
